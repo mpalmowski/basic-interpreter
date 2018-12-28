@@ -149,12 +149,6 @@ public interface BasicVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitLogicalOperator(BasicParser.LogicalOperatorContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link BasicParser#builtInFunction}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitBuiltInFunction(BasicParser.BuiltInFunctionContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link BasicParser#lineNumber}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

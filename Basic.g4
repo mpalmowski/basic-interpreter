@@ -70,7 +70,7 @@ expressionAtom
     ;
 
 functionCall
-    : (ID | builtInFunction) LPAREN expression RPAREN
+    : ID LPAREN expression RPAREN
     ;
 
 multiplyDivideOp
@@ -90,19 +90,6 @@ logicalOperator
     | GREATER
     | GREATER_OR_EQUAL
     | NOT_EQUAL
-    ;
-
-builtInFunction
-    : SIN
-    | COS
-    | TAN
-    | ATN
-    | EXP
-    | ABS
-    | LOG
-    | SQR
-    | RND
-    | INT
     ;
 
 lineNumber
@@ -131,18 +118,6 @@ DEF: 'DEF' | 'def' ;
 REM: 'REM' | 'rem' ;
 STOP: 'STOP' | 'stop' ;
 END: 'END' | 'end' ;
-
-// Functions
-SIN: 'SIN' | 'sin' ;
-COS: 'COS' | 'sin' ;
-TAN: 'TAN' | 'tan' ;
-ATN: 'ATN' | 'atn' ;
-EXP: 'EXP' | 'exp' ;
-ABS: 'ABS' | 'abs' ;
-LOG: 'LOG' | 'log' ;
-SQR: 'SQR' | 'sqr' ;
-RND: 'RND' | 'rnd' ;
-INT: 'INT' | 'int' ;
 
 // Identifiers
 ID: (LETTER | '_') (LETTER | DIGIT | '_')* ;

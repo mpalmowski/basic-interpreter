@@ -5,9 +5,9 @@ import basicAntlr.BasicParser;
 
 public class ExpressionVisitor extends BasicBaseVisitor<Double> {
     private Scope scope;
-    private Memory<Function> functions;
+    private FunctionLibrary functions;
 
-    ExpressionVisitor(Scope scope, Memory<Function> functions) {
+    ExpressionVisitor(Scope scope, FunctionLibrary functions) {
         this.scope = scope;
         this.functions = functions;
     }
@@ -105,10 +105,6 @@ public class ExpressionVisitor extends BasicBaseVisitor<Double> {
     @Override
     public Double visitFunctionCall(BasicParser.FunctionCallContext ctx) {
         Double argumentValue = visitExpression(ctx.expression());
-        Function function = functions.get(ctx.ID().getText());
-        if(function != null){
-            return function.call(argumentValue, scope, functions);
-        }
-        return 0.0;
+        return functions.run(ctx.ID().getText(), argumentValue, scope);
     }
 }

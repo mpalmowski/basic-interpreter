@@ -6,11 +6,11 @@ import basicAntlr.BasicBaseVisitor;
 
 public class BasicVisitor extends BasicBaseVisitor<Boolean> {
     private Scope globalVariables;
-    private Memory<Function> functions;
+    private FunctionLibrary functions;
 
     public BasicVisitor() {
         this.globalVariables = new Scope();
-        this.functions = new Memory<>();
+        this.functions = new FunctionLibrary();
     }
 
     @Override
