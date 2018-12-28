@@ -1,0 +1,5 @@
+let a = 2
+let b = a + 3
+def funkcja1(x) = x + 1
+print funkcja1(b)
+end
