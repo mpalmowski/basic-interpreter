@@ -1,6 +1,7 @@
 package basicInterpreter;
 
 import basicAntlr.BasicBaseVisitor;
+import basicAntlr.BasicLexer;
 import basicAntlr.BasicParser;
 
 public class ExpressionVisitor extends BasicBaseVisitor<Double> {
@@ -12,78 +13,57 @@ public class ExpressionVisitor extends BasicBaseVisitor<Double> {
         this.functions = functions;
     }
 
-    private Double multiplyOrDivide(double valueLeft, double valueRight, BasicParser.MultiplyDivideOpContext ctx) {
-        if (ctx.MULTIPLY() != null) {
-            return valueLeft * valueRight;
-        }
-
-        if (ctx.DIVIDE() != null) {
-            return valueLeft / valueRight;
-        }
-
-        return 0.0;
+    @Override
+    public Double visitParenExpression(BasicParser.ParenExpressionContext ctx) {
+        return visit(ctx.expression());
     }
 
-    private Double addOrSubtract(double valueLeft, double valueRight, BasicParser.AddSubtractOpContext ctx) {
-        if (ctx.MINUS() != null) {
-            return valueLeft - valueRight;
-        }
+    @Override
+    public Double visitPowerExpression(BasicParser.PowerExpressionContext ctx) {
+        double val1, val2;
+        val1 = visit(ctx.expression(0));
+        val2 = visit(ctx.expression(1));
+        return Math.pow(val1, val2);
+    }
 
-        if (ctx.PLUS() != null) {
-            return valueLeft + valueRight;
+    @Override
+    public Double visitMulDivExpression(BasicParser.MulDivExpressionContext ctx) {
+        double val1, val2;
+        val1 = visit(ctx.expression(0));
+        val2 = visit(ctx.expression(1));
+        switch (ctx.operator.getType()) {
+            case BasicLexer.MULTIPLY:
+                return val1 * val2;
+            case BasicLexer.DIVIDE:
+                return val1 / val2;
         }
 
         return 0.0;
     }
 
     @Override
-    public Double visitExpression(BasicParser.ExpressionContext ctx) {
+    public Double visitAddSubExpression(BasicParser.AddSubExpressionContext ctx) {
         double val1, val2;
-
-        if (ctx.LPAREN() != null && ctx.RPAREN() != null) {
-            return visitExpression(ctx.expression(0));
-        }
-
-        if (ctx.POWER() != null) {
-            val1 = visitExpression(ctx.expression(0));
-            val2 = visitExpression(ctx.expression(1));
-            return Math.pow(val1, val2);
-        }
-
-        if (ctx.multiplyDivideOp() != null) {
-            val1 = visitExpression(ctx.expression(0));
-            val2 = visitExpression(ctx.expression(1));
-            return multiplyOrDivide(val1, val2, ctx.multiplyDivideOp());
-        }
-
-        if (ctx.addSubtractOp() != null) {
-            val1 = visitExpression(ctx.expression(0));
-            val2 = visitExpression(ctx.expression(1));
-            return addOrSubtract(val1, val2, ctx.addSubtractOp());
-        }
-
-        if (ctx.expressionAtom() != null) {
-            return visitExpressionAtom(ctx.expressionAtom());
+        val1 = visit(ctx.expression(0));
+        val2 = visit(ctx.expression(1));
+        switch (ctx.operator.getType()) {
+            case BasicLexer.PLUS:
+                return val1 + val2;
+            case BasicLexer.MINUS:
+                return val1 - val2;
         }
 
         return 0.0;
+    }
+
+    @Override
+    public Double visitAtomExpression(BasicParser.AtomExpressionContext ctx) {
+        return visit(ctx.expressionAtom());
     }
 
     @Override
     public Double visitExpressionAtom(BasicParser.ExpressionAtomContext ctx) {
-        if (ctx.number() != null) {
-            return visitNumber(ctx.number());
-        }
-
-        if (ctx.ID() != null) {
-            return scope.get(ctx.ID().getText());
-        }
-
-        if (ctx.functionCall() != null) {
-            return visitFunctionCall(ctx.functionCall());
-        }
-
-        return 0.0;
+        return visit(ctx.getChild(0));
     }
 
     @Override
@@ -104,7 +84,12 @@ public class ExpressionVisitor extends BasicBaseVisitor<Double> {
 
     @Override
     public Double visitFunctionCall(BasicParser.FunctionCallContext ctx) {
-        Double argumentValue = visitExpression(ctx.expression());
+        Double argumentValue = visit(ctx.expression());
         return functions.run(ctx.ID().getText(), argumentValue, scope);
+    }
+
+    @Override
+    public Double visitVariable(BasicParser.VariableContext ctx) {
+        return scope.get(ctx.ID().getText());
     }
 }

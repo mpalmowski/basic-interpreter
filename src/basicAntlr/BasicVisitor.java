@@ -113,11 +113,46 @@ public interface BasicVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitPrintArgument(BasicParser.PrintArgumentContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link BasicParser#expression}.
+	 * Visit a parse tree produced by {@link BasicParser#logicalExpression}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitExpression(BasicParser.ExpressionContext ctx);
+	T visitLogicalExpression(BasicParser.LogicalExpressionContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code powerExpression}
+	 * labeled alternative in {@link BasicParser#expression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitPowerExpression(BasicParser.PowerExpressionContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code mulDivExpression}
+	 * labeled alternative in {@link BasicParser#expression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMulDivExpression(BasicParser.MulDivExpressionContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code atomExpression}
+	 * labeled alternative in {@link BasicParser#expression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAtomExpression(BasicParser.AtomExpressionContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code addSubExpression}
+	 * labeled alternative in {@link BasicParser#expression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAddSubExpression(BasicParser.AddSubExpressionContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code parenExpression}
+	 * labeled alternative in {@link BasicParser#expression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitParenExpression(BasicParser.ParenExpressionContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link BasicParser#expressionAtom}.
 	 * @param ctx the parse tree
@@ -131,24 +166,6 @@ public interface BasicVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitFunctionCall(BasicParser.FunctionCallContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link BasicParser#multiplyDivideOp}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitMultiplyDivideOp(BasicParser.MultiplyDivideOpContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link BasicParser#addSubtractOp}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitAddSubtractOp(BasicParser.AddSubtractOpContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link BasicParser#logicalOperator}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitLogicalOperator(BasicParser.LogicalOperatorContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link BasicParser#lineNumber}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -160,4 +177,10 @@ public interface BasicVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitNumber(BasicParser.NumberContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link BasicParser#variable}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitVariable(BasicParser.VariableContext ctx);
 }

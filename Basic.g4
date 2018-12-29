@@ -2,7 +2,7 @@ grammar Basic;
 
 /***** PARSER RULES *****/
 program
-    : statement* endStatement EOF
+    : statement? (NEWLINE statement)* EOF
     ;
 
 statement: lineNumber?
@@ -16,9 +16,9 @@ statement: lineNumber?
                 forStatement |
                 stopStatement |
                 defStatement |
-                remStatement
-           )
-           NEWLINE ;
+                remStatement |
+                endStatement
+           );
 
 letStatement
     : LET ID EQUAL expression
@@ -31,8 +31,14 @@ printStatement
     : PRINT printArgument (printSeparator printArgument)*
     ;
 
-gotoStatement: GOTO lineNumber ;
-ifStatement: IF expression logicalOperator expression THEN lineNumber ;
+gotoStatement
+    : GOTO lineNumber
+    ;
+
+ifStatement
+    : IF logicalExpression THEN lineNumber
+    ;
+
 forOpening: FOR ID EQUAL expression TO expression (STEP expression)?;
 forClosing: NEXT ID ;
 forStatement: forOpening NEWLINE statement* lineNumber? forClosing ;
@@ -41,9 +47,15 @@ defStatement
     : DEF ID LPAREN ID RPAREN EQUAL expression
     ;
 
-remStatement: REM .*? ;
+remStatement
+    : REM .*?
+    ;
+
 stopStatement: STOP ;
-endStatement: lineNumber? END NEWLINE*;
+
+endStatement
+    : lineNumber? END NEWLINE*
+    ;
 
 printSeparator
     : COMMA
@@ -55,41 +67,26 @@ printArgument
     | STRING
     ;
 
+logicalExpression
+    : expression operator=(LESS | LESS_OR_EQUAL | EQUAL | GREATER | GREATER_OR_EQUAL | NOT_EQUAL) expression
+    ;
+
 expression
-    : LPAREN expression RPAREN
-    | expression POWER expression
-    | expression multiplyDivideOp expression
-    | expression addSubtractOp expression
-    | expressionAtom
+    : LPAREN expression RPAREN #parenExpression
+    | expression POWER expression #powerExpression
+    | expression operator=(MULTIPLY | DIVIDE) expression #mulDivExpression
+    | expression operator=(PLUS | MINUS) expression #addSubExpression
+    | expressionAtom #atomExpression
     ;
 
 expressionAtom
     : number
-    | ID
+    | variable
     | functionCall
     ;
 
 functionCall
     : ID LPAREN expression RPAREN
-    ;
-
-multiplyDivideOp
-    : MULTIPLY
-    | DIVIDE
-    ;
-
-addSubtractOp
-    : PLUS
-    | MINUS
-    ;
-
-logicalOperator
-    : LESS
-    | LESS_OR_EQUAL
-    | EQUAL
-    | GREATER
-    | GREATER_OR_EQUAL
-    | NOT_EQUAL
     ;
 
 lineNumber
@@ -98,6 +95,10 @@ lineNumber
 
 number
     : (PLUS | MINUS)? (NUMBER | FLOAT)
+    ;
+
+variable
+    : ID
     ;
 
 /***** LEXER RULES *****/

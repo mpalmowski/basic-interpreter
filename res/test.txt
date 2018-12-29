@@ -1,8 +1,9 @@
 let a = 2
-let b = a + 3
+let b = a + 2
 def funkcja1(x) = x + cos(0)
 print funkcja1(b)
-goto 11
-10 print "nie", "dziala", b, b+1
-11 print "dziala", b; b+2
-end
+if b < 5 then 22
+21 print "wieksze"
+goto 23
+22 print "mniejsze"
+23 end

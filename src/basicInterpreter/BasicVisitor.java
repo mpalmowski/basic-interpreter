@@ -1,5 +1,6 @@
 package basicInterpreter;
 
+import basicAntlr.BasicLexer;
 import org.antlr.v4.runtime.tree.ParseTree;
 import basicAntlr.BasicParser;
 import basicAntlr.BasicBaseVisitor;
@@ -59,7 +60,7 @@ public class BasicVisitor extends BasicBaseVisitor<Boolean> {
     @Override
     public Boolean visitLetStatement(BasicParser.LetStatementContext ctx) {
         String name = ctx.ID().getText();
-        Double value = new ExpressionVisitor(globalVariables, functions).visitExpression(ctx.expression());
+        Double value = new ExpressionVisitor(globalVariables, functions).visit(ctx.expression());
         globalVariables.set(name, value);
         return true;
     }
@@ -89,7 +90,7 @@ public class BasicVisitor extends BasicBaseVisitor<Boolean> {
     public Boolean visitPrintArgument(BasicParser.PrintArgumentContext ctx) {
         String argument = "";
         if (ctx.expression() != null) {
-            argument = new ExpressionVisitor(globalVariables, functions).visitExpression(ctx.expression()).toString();
+            argument = new ExpressionVisitor(globalVariables, functions).visit(ctx.expression()).toString();
         } else if (ctx.STRING() != null) {
             argument = ctx.STRING().toString();
             argument = argument.substring(1, argument.length()-1);
@@ -125,6 +126,36 @@ public class BasicVisitor extends BasicBaseVisitor<Boolean> {
 
     @Override
     public Boolean visitIfStatement(BasicParser.IfStatementContext ctx) {
+        if(visit(ctx.logicalExpression())){
+            int lineNumber = Integer.parseInt(ctx.lineNumber().getText());
+            nextStatement = numberedStatements.get(lineNumber);
+            if(nextStatement == null){
+                nextStatement = -1;
+                //TODO throw exception
+            }
+        }
         return true;
+    }
+
+    @Override
+    public Boolean visitLogicalExpression(BasicParser.LogicalExpressionContext ctx) {
+        ExpressionVisitor expressionVisitor = new ExpressionVisitor(globalVariables, functions);
+        Double expression1 = expressionVisitor.visit(ctx.expression(0));
+        Double expression2 = expressionVisitor.visit(ctx.expression(1));
+        switch (ctx.operator.getType()){
+            case BasicLexer.LESS:
+                return expression1 < expression2;
+            case BasicLexer.LESS_OR_EQUAL:
+                return expression1 <= expression2;
+            case BasicLexer.EQUAL:
+                return expression1.equals(expression2);
+            case BasicLexer.GREATER:
+                return expression1 > expression2;
+            case BasicLexer.GREATER_OR_EQUAL:
+                return expression1 >= expression2;
+            case BasicLexer.NOT_EQUAL:
+                return !expression1.equals(expression2);
+        }
+        return false;
     }
 }

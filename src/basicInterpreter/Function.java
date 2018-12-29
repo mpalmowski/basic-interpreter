@@ -14,6 +14,6 @@ public class Function {
     public Double run(Double argumentValue, Scope parentScope, FunctionLibrary functions) {
         Scope localScope = new Scope(parentScope);
         localScope.set(argument, argumentValue);
-        return new ExpressionVisitor(localScope, functions).visitExpression(expressionContext);
+        return new ExpressionVisitor(localScope, functions).visit(expressionContext);
     }
 }
