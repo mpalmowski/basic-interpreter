@@ -123,8 +123,8 @@ END: 'END' | 'end' ;
 ID: (LETTER | '_') (LETTER | DIGIT | '_')* ;
 
 // Literals
-NUMBER: DIGIT+ (('e' | 'E') MINUS? DIGIT+)* ;
-FLOAT: DIGIT* '.' DIGIT+ (('e' | 'E') MINUS? DIGIT+)* ;
+NUMBER: DIGIT+ ;
+FLOAT: DIGIT* '.'? DIGIT+ (('e' | 'E') MINUS? DIGIT+)* ;
 STRING: '"' ('\\"'|.)*? '"' ;
 
 fragment LETTER: [a-zA-Z] ;

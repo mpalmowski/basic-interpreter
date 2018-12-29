@@ -4,20 +4,46 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import basicAntlr.BasicParser;
 import basicAntlr.BasicBaseVisitor;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class BasicVisitor extends BasicBaseVisitor<Boolean> {
     private Scope globalVariables;
     private FunctionLibrary functions;
+    private Map<Integer, Integer> numberedStatements;
+    private Integer nextStatement;
 
     public BasicVisitor() {
         this.globalVariables = new Scope();
         this.functions = new FunctionLibrary();
+        this.numberedStatements = new HashMap<>();
+    }
+
+    private Integer getLineNumber(BasicParser.StatementContext ctx) {
+        if (ctx.lineNumber() != null) {
+            return Integer.parseInt(ctx.lineNumber().getText());
+        }
+        return -1;
     }
 
     @Override
     public Boolean visitProgram(BasicParser.ProgramContext ctx) {
-        for (ParseTree childTree : ctx.children) {
-            visit(childTree);
+        for (int i = 0; i < ctx.statement().size(); ++i) {
+            int lineNumber = getLineNumber(ctx.statement(i));
+            if (lineNumber >= 0) {
+                numberedStatements.put(lineNumber, i);
+            }
         }
+
+        nextStatement = -1;
+        for(int i=0; i<ctx.statement().size(); ++i){
+            if(nextStatement >= 0){
+                i = nextStatement;
+                nextStatement = -1;
+            }
+            visitStatement(ctx.statement(i));
+        }
+
         return true;
     }
 
@@ -26,6 +52,7 @@ public class BasicVisitor extends BasicBaseVisitor<Boolean> {
         for (ParseTree childTree : ctx.children) {
             visit(childTree);
         }
+
         return true;
     }
 
@@ -42,6 +69,7 @@ public class BasicVisitor extends BasicBaseVisitor<Boolean> {
         for (ParseTree childTree : ctx.children) {
             visit(childTree);
         }
+        System.out.print("\n");
 
         return true;
     }
@@ -62,6 +90,9 @@ public class BasicVisitor extends BasicBaseVisitor<Boolean> {
         String argument = "";
         if (ctx.expression() != null) {
             argument = new ExpressionVisitor(globalVariables, functions).visitExpression(ctx.expression()).toString();
+        } else if (ctx.STRING() != null) {
+            argument = ctx.STRING().toString();
+            argument = argument.substring(1, argument.length()-1);
         }
 
         System.out.print(argument);
@@ -78,6 +109,22 @@ public class BasicVisitor extends BasicBaseVisitor<Boolean> {
 
         functions.set(functionName, newFunction);
 
+        return true;
+    }
+
+    @Override
+    public Boolean visitGotoStatement(BasicParser.GotoStatementContext ctx) {
+        int lineNumber = Integer.parseInt(ctx.lineNumber().getText());
+        nextStatement = numberedStatements.get(lineNumber);
+        if(nextStatement == null){
+            nextStatement = -1;
+            //TODO throw exception
+        }
+        return true;
+    }
+
+    @Override
+    public Boolean visitIfStatement(BasicParser.IfStatementContext ctx) {
         return true;
     }
 }

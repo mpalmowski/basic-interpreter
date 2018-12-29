@@ -35,10 +35,10 @@ public class FunctionLibrary {
     public double run(String name, Double argumentValue, Scope parentScope) {
         Function function = functions.get(name);
         if(function != null){
-            return function.call(argumentValue, parentScope, this);
+            return function.run(argumentValue, parentScope, this);
         }
 
-        name.toLowerCase();
+        name = name.toLowerCase();
         BuiltInFunction<Double> builtInFunction = builtInFunctions.get(name);
         if(builtInFunction != null) {
             return builtInFunction.run(argumentValue);

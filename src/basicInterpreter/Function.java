@@ -11,7 +11,7 @@ public class Function {
         this.expressionContext = expressionContext;
     }
 
-    public Double call(Double argumentValue, Scope parentScope, FunctionLibrary functions) {
+    public Double run(Double argumentValue, Scope parentScope, FunctionLibrary functions) {
         Scope localScope = new Scope(parentScope);
         localScope.set(argument, argumentValue);
         return new ExpressionVisitor(localScope, functions).visitExpression(expressionContext);
