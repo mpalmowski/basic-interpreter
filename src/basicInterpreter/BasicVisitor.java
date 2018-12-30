@@ -6,18 +6,22 @@ import basicAntlr.BasicParser;
 import basicAntlr.BasicBaseVisitor;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.Queue;
 
 public class BasicVisitor extends BasicBaseVisitor<Boolean> {
-    private Scope globalVariables;
+    private Scope scope;
     private FunctionLibrary functions;
     private Map<Integer, Integer> numberedStatements;
+    private Queue<Double> data;
     private Integer nextStatement;
 
     public BasicVisitor() {
-        this.globalVariables = new Scope();
+        this.scope = new Scope();
         this.functions = new FunctionLibrary();
         this.numberedStatements = new HashMap<>();
+        this.data = new LinkedList<>();
     }
 
     private Integer getLineNumber(BasicParser.StatementContext ctx) {
@@ -30,7 +34,8 @@ public class BasicVisitor extends BasicBaseVisitor<Boolean> {
     @Override
     public Boolean visitProgram(BasicParser.ProgramContext ctx) {
         for (int i = 0; i < ctx.statement().size(); ++i) {
-            int lineNumber = getLineNumber(ctx.statement(i));
+            BasicParser.StatementContext statement = ctx.statement(i);
+            int lineNumber = getLineNumber(statement);
             if (lineNumber >= 0) {
                 numberedStatements.put(lineNumber, i);
             }
@@ -60,8 +65,8 @@ public class BasicVisitor extends BasicBaseVisitor<Boolean> {
     @Override
     public Boolean visitLetStatement(BasicParser.LetStatementContext ctx) {
         String name = ctx.ID().getText();
-        Double value = new ExpressionVisitor(globalVariables, functions).visit(ctx.expression());
-        globalVariables.set(name, value);
+        Double value = new ExpressionVisitor(scope, functions).visit(ctx.expression());
+        scope.set(name, value);
         return true;
     }
 
@@ -90,7 +95,7 @@ public class BasicVisitor extends BasicBaseVisitor<Boolean> {
     public Boolean visitPrintArgument(BasicParser.PrintArgumentContext ctx) {
         String argument = "";
         if (ctx.expression() != null) {
-            argument = new ExpressionVisitor(globalVariables, functions).visit(ctx.expression()).toString();
+            argument = new ExpressionVisitor(scope, functions).visit(ctx.expression()).toString();
         } else if (ctx.STRING() != null) {
             argument = ctx.STRING().toString();
             argument = argument.substring(1, argument.length()-1);
@@ -139,7 +144,7 @@ public class BasicVisitor extends BasicBaseVisitor<Boolean> {
 
     @Override
     public Boolean visitLogicalExpression(BasicParser.LogicalExpressionContext ctx) {
-        ExpressionVisitor expressionVisitor = new ExpressionVisitor(globalVariables, functions);
+        ExpressionVisitor expressionVisitor = new ExpressionVisitor(scope, functions);
         Double expression1 = expressionVisitor.visit(ctx.expression(0));
         Double expression2 = expressionVisitor.visit(ctx.expression(1));
         switch (ctx.operator.getType()){
@@ -157,5 +162,29 @@ public class BasicVisitor extends BasicBaseVisitor<Boolean> {
                 return !expression1.equals(expression2);
         }
         return false;
+    }
+
+    @Override
+    public Boolean visitDataStatement(BasicParser.DataStatementContext ctx) {
+        ExpressionVisitor expressionVisitor = new ExpressionVisitor(scope, functions);
+        for(BasicParser.NumberContext numberContext : ctx.number()) {
+            Double value = expressionVisitor.visit(numberContext);
+            data.add(value);
+        }
+        return true;
+    }
+
+    @Override
+    public Boolean visitReadStatement(BasicParser.ReadStatementContext ctx) {
+        for(BasicParser.VariableContext variableContext : ctx.variable()) {
+            Double value = data.peek();
+            if(value == null){
+                //TODO throw exception
+                return false;
+            }
+            data.remove();
+            scope.set(variableContext.ID().getText(), value);
+        }
+        return true;
     }
 }

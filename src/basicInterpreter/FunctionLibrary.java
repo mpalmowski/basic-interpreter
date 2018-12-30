@@ -42,6 +42,8 @@ public class FunctionLibrary {
         BuiltInFunction<Double> builtInFunction = builtInFunctions.get(name);
         if(builtInFunction != null) {
             return builtInFunction.run(argumentValue);
+        } else {
+            //TODO throw exception
         }
 
         return 0.0;

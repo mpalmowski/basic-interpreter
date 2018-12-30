@@ -14,6 +14,7 @@ statement: lineNumber?
                 gotoStatement |
                 ifStatement |
                 forStatement |
+                nextStatement |
                 stopStatement |
                 defStatement |
                 remStatement |
@@ -24,8 +25,13 @@ letStatement
     : LET ID EQUAL expression
     ;
 
-dataStatement: DATA number (COMMA number)* ;
-readStatement: READ ID (COMMA ID)* ;
+dataStatement
+    : DATA number (COMMA number)*
+    ;
+
+readStatement
+    : READ variable (COMMA variable)*
+    ;
 
 printStatement
     : PRINT printArgument (printSeparator printArgument)*
@@ -39,9 +45,8 @@ ifStatement
     : IF logicalExpression THEN lineNumber
     ;
 
-forOpening: FOR ID EQUAL expression TO expression (STEP expression)?;
-forClosing: NEXT ID ;
-forStatement: forOpening NEWLINE statement* lineNumber? forClosing ;
+forStatement: FOR ID EQUAL expression TO expression (STEP expression)? ;
+nextStatement: NEXT ID ;
 
 defStatement
     : DEF ID LPAREN ID RPAREN EQUAL expression

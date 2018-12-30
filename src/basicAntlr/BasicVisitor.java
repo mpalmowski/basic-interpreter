@@ -59,23 +59,17 @@ public interface BasicVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitIfStatement(BasicParser.IfStatementContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link BasicParser#forOpening}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitForOpening(BasicParser.ForOpeningContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link BasicParser#forClosing}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitForClosing(BasicParser.ForClosingContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link BasicParser#forStatement}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitForStatement(BasicParser.ForStatementContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link BasicParser#nextStatement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNextStatement(BasicParser.NextStatementContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link BasicParser#defStatement}.
 	 * @param ctx the parse tree
