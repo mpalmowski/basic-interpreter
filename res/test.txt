@@ -1,9 +1,13 @@
 data 2, 3, 4
-def funkcja1(x) = x + cos(0)
+def func1(x) = x + cos(0)
 read a, b
-print funkcja1(b)
+print func1(b)
 if b < 5 then 22
-21 print "wieksze"
+21 print "greater"
 goto 23
-22 print "mniejsze"
-23 end
+22 print "smaller"
+23 for y = 10 to 1
+print y
+next y
+print y
+end

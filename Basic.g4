@@ -13,8 +13,7 @@ statement: lineNumber?
                 printStatement |
                 gotoStatement |
                 ifStatement |
-                forStatement |
-                nextStatement |
+                forLoop |
                 stopStatement |
                 defStatement |
                 remStatement |
@@ -45,8 +44,17 @@ ifStatement
     : IF logicalExpression THEN lineNumber
     ;
 
-forStatement: FOR ID EQUAL expression TO expression (STEP expression)? ;
-nextStatement: NEXT ID ;
+forLoop
+    : forStatement NEWLINE (statement (NEWLINE statement)* NEWLINE)?  nextStatement
+    ;
+
+forStatement
+    : lineNumber? FOR ID EQUAL expression TO expression (STEP expression)?
+    ;
+
+nextStatement
+    : lineNumber? NEXT ID
+    ;
 
 defStatement
     : DEF ID LPAREN ID RPAREN EQUAL expression

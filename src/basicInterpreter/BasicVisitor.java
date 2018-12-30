@@ -5,16 +5,13 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import basicAntlr.BasicParser;
 import basicAntlr.BasicBaseVisitor;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Queue;
+import java.util.*;
 
 public class BasicVisitor extends BasicBaseVisitor<Boolean> {
-    private Scope scope;
-    private FunctionLibrary functions;
+    Scope scope;
+    FunctionLibrary functions;
     private Map<Integer, Integer> numberedStatements;
-    private Queue<Double> data;
+    Queue<Double> data;
     private Integer nextStatement;
 
     public BasicVisitor() {
@@ -24,22 +21,22 @@ public class BasicVisitor extends BasicBaseVisitor<Boolean> {
         this.data = new LinkedList<>();
     }
 
-    private Integer getLineNumber(BasicParser.StatementContext ctx) {
-        if (ctx.lineNumber() != null) {
-            return Integer.parseInt(ctx.lineNumber().getText());
-        }
-        return -1;
-    }
-
-    @Override
-    public Boolean visitProgram(BasicParser.ProgramContext ctx) {
-        for (int i = 0; i < ctx.statement().size(); ++i) {
-            BasicParser.StatementContext statement = ctx.statement(i);
-            int lineNumber = getLineNumber(statement);
+    void rememberLineNumbers(List<BasicParser.StatementContext> statements) {
+        for (int i = 0; i < statements.size(); ++i) {
+            BasicParser.StatementContext statement = statements.get(i);
+            int lineNumber = -1;
+            if (statement.lineNumber() != null) {
+                lineNumber = Integer.parseInt(statement.lineNumber().getText());
+            }
             if (lineNumber >= 0) {
                 numberedStatements.put(lineNumber, i);
             }
         }
+    }
+
+    @Override
+    public Boolean visitProgram(BasicParser.ProgramContext ctx) {
+        rememberLineNumbers(ctx.statement());
 
         nextStatement = -1;
         for(int i=0; i<ctx.statement().size(); ++i){
@@ -186,5 +183,10 @@ public class BasicVisitor extends BasicBaseVisitor<Boolean> {
             scope.set(variableContext.ID().getText(), value);
         }
         return true;
+    }
+
+    @Override
+    public Boolean visitForLoop(BasicParser.ForLoopContext ctx) {
+        return new ForLoop(scope, functions, data).visit(ctx);
     }
 }
