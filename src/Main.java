@@ -7,13 +7,18 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.io.IOException;
+import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Main {
     public static void main(String[] args) {
         try {
-            CharStream input = CharStreams.fromFileName("res/test.txt");
+            System.out.print("Podaj nazwę pliku do interpretacji: ");
+            Scanner S=new Scanner(System.in);
+            String filename=S.nextLine();
+            System.out.print("\n\n");
+            CharStream input = CharStreams.fromFileName(filename);
             BasicLexer lexer = new BasicLexer(input);
             BasicParser parser = new BasicParser(new CommonTokenStream(lexer));
             ParseTree tree = parser.program();

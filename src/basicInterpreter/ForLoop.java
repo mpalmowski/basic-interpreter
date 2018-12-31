@@ -22,7 +22,12 @@ public class ForLoop extends BasicVisitor {
         Double currentValue = startValue;
         while ((startValue <= endValue && currentValue <= endValue)||(startValue >= endValue && currentValue >= endValue)) {
             for(BasicParser.StatementContext statementContext : ctx.statement())
-                visit(statementContext);
+                if(!visit(statementContext)){
+                    if(statementContext.stopStatement() != null)
+                        return true;
+                    if(statementContext.endStatement() != null)
+                        return false;
+                }
 
             visit(ctx.nextStatement());
             currentValue = scope.get(iterationVariableName);

@@ -2,23 +2,24 @@ grammar Basic;
 
 /***** PARSER RULES *****/
 program
-    : statement? (NEWLINE statement)* EOF
+    : statement? (NEWLINE+ statement)* NEWLINE* EOF
     ;
 
-statement: lineNumber?
-           (
-                letStatement |
-                dataStatement |
-                readStatement |
-                printStatement |
-                gotoStatement |
-                ifStatement |
-                forLoop |
-                stopStatement |
-                defStatement |
-                remStatement |
-                endStatement
-           );
+statement
+    : lineNumber?
+        ( letStatement
+        | dataStatement
+        | readStatement
+        | printStatement
+        | gotoStatement
+        | ifStatement
+        | forLoop
+        | stopStatement
+        | defStatement
+        | remStatement
+        | endStatement
+        )
+    ;
 
 letStatement
     : LET ID EQUAL expression
@@ -45,7 +46,7 @@ ifStatement
     ;
 
 forLoop
-    : forStatement NEWLINE (statement (NEWLINE statement)* NEWLINE)?  nextStatement
+    : forStatement NEWLINE+ (statement (NEWLINE+ statement)* NEWLINE+)?  nextStatement
     ;
 
 forStatement
@@ -64,10 +65,12 @@ remStatement
     : REM .*?
     ;
 
-stopStatement: STOP ;
+stopStatement
+    : STOP
+    ;
 
 endStatement
-    : lineNumber? END NEWLINE*
+    : END
     ;
 
 printSeparator
@@ -107,7 +110,7 @@ lineNumber
     ;
 
 number
-    : (PLUS | MINUS)? (NUMBER | FLOAT)
+    : (PLUS | MINUS)? numberType=(NUMBER | FLOAT)
     ;
 
 variable

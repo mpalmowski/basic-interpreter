@@ -35,10 +35,12 @@ public class ExpressionVisitor extends BasicBaseVisitor<Double> {
             case BasicLexer.MULTIPLY:
                 return val1 * val2;
             case BasicLexer.DIVIDE:
+                if(val2 == 0)
+                    throw new ParsingException("Division by 0.", ctx);
                 return val1 / val2;
         }
 
-        return 0.0;
+        return null;
     }
 
     @Override
@@ -53,7 +55,7 @@ public class ExpressionVisitor extends BasicBaseVisitor<Double> {
                 return val1 - val2;
         }
 
-        return 0.0;
+        return null;
     }
 
     @Override
@@ -69,10 +71,13 @@ public class ExpressionVisitor extends BasicBaseVisitor<Double> {
     @Override
     public Double visitNumber(BasicParser.NumberContext ctx) {
         Double value = 0.0;
-        if (ctx.NUMBER() != null) {
-            value = Double.parseDouble(ctx.NUMBER().getText());
-        } else if (ctx.FLOAT() != null) {
-            value = Double.parseDouble(ctx.FLOAT().getText());
+        switch (ctx.numberType.getType()){
+            case BasicLexer.NUMBER:
+                value = Double.parseDouble(ctx.NUMBER().getText());
+                break;
+            case BasicLexer.FLOAT:
+                value = Double.parseDouble(ctx.FLOAT().getText());
+                break;
         }
 
         if (ctx.MINUS() != null) {
@@ -85,11 +90,19 @@ public class ExpressionVisitor extends BasicBaseVisitor<Double> {
     @Override
     public Double visitFunctionCall(BasicParser.FunctionCallContext ctx) {
         Double argumentValue = visit(ctx.expression());
-        return functions.run(ctx.ID().getText(), argumentValue, scope);
+        Double result = functions.run(ctx.ID().getText(), argumentValue, scope);
+        if(result == null){
+            throw new ParsingException("Function \"" + ctx.ID().getText() + "\" is undeclared.", ctx);
+        }
+        return result;
     }
 
     @Override
     public Double visitVariable(BasicParser.VariableContext ctx) {
-        return scope.get(ctx.ID().getText());
+        Double value = scope.get(ctx.ID().getText());
+        if(value == null){
+            throw new ParsingException("Variable \"" + ctx.ID().getText() + "\" is undeclared.", ctx);
+        }
+        return value;
     }
 }

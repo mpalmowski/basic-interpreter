@@ -44,19 +44,25 @@ public class BasicVisitor extends BasicBaseVisitor<Boolean> {
                 i = nextStatement;
                 nextStatement = -1;
             }
-            visitStatement(ctx.statement(i));
+            try {
+                if(!visitStatement(ctx.statement(i)))
+                    return true;
+            } catch (ParsingException e) {
+                Integer line = e.getContext().start.getLine();
+                System.err.print("line " + line.toString() + ": " + e.getMessage());
+                return false;
+            }
         }
 
-        return true;
+        return false;
     }
 
     @Override
     public Boolean visitStatement(BasicParser.StatementContext ctx) {
-        for (ParseTree childTree : ctx.children) {
-            visit(childTree);
-        }
-
-        return true;
+        if(ctx.lineNumber() != null)
+            return visit(ctx.getChild(1));
+        else
+            return visit(ctx.getChild(0));
     }
 
     @Override
@@ -121,7 +127,7 @@ public class BasicVisitor extends BasicBaseVisitor<Boolean> {
         nextStatement = numberedStatements.get(lineNumber);
         if(nextStatement == null){
             nextStatement = -1;
-            //TODO throw exception
+            throw new ParsingException("Trying to jump to a non-existing or forbidden line.", ctx);
         }
         return true;
     }
@@ -133,7 +139,7 @@ public class BasicVisitor extends BasicBaseVisitor<Boolean> {
             nextStatement = numberedStatements.get(lineNumber);
             if(nextStatement == null){
                 nextStatement = -1;
-                //TODO throw exception
+                throw new ParsingException("Trying to jump to a non-existing or forbidden line.", ctx);
             }
         }
         return true;
@@ -176,8 +182,7 @@ public class BasicVisitor extends BasicBaseVisitor<Boolean> {
         for(BasicParser.VariableContext variableContext : ctx.variable()) {
             Double value = data.peek();
             if(value == null){
-                //TODO throw exception
-                return false;
+                throw new ParsingException("Trying to read undeclared data.", ctx);
             }
             data.remove();
             scope.set(variableContext.ID().getText(), value);
@@ -188,5 +193,15 @@ public class BasicVisitor extends BasicBaseVisitor<Boolean> {
     @Override
     public Boolean visitForLoop(BasicParser.ForLoopContext ctx) {
         return new ForLoop(scope, functions, data).visit(ctx);
+    }
+
+    @Override
+    public Boolean visitEndStatement(BasicParser.EndStatementContext ctx) {
+        return false;
+    }
+
+    @Override
+    public Boolean visitStopStatement(BasicParser.StopStatementContext ctx) {
+        return false;
     }
 }

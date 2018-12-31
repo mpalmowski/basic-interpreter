@@ -2,6 +2,7 @@ package basicInterpreter;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 public class FunctionLibrary {
     private Map<String, Function> functions;
@@ -24,15 +25,15 @@ public class FunctionLibrary {
         builtInFunctions.put("abs", Math::abs);
         builtInFunctions.put("log", Math::log);
         builtInFunctions.put("sqr", Math::sqrt);
-        builtInFunctions.put("rnd", (Double x) -> (double)Math.round(x));
-        builtInFunctions.put("int", Math::floor);
+        builtInFunctions.put("rnd", (Double x) -> new Random().nextDouble());
+        builtInFunctions.put("int", (Double x) -> (double)Math.round(x));
     }
 
     public void set(String name, Function item) {
         functions.put(name, item);
     }
 
-    public double run(String name, Double argumentValue, Scope parentScope) {
+    public Double run(String name, Double argumentValue, Scope parentScope) {
         Function function = functions.get(name);
         if(function != null){
             return function.run(argumentValue, parentScope, this);
@@ -43,9 +44,7 @@ public class FunctionLibrary {
         if(builtInFunction != null) {
             return builtInFunction.run(argumentValue);
         } else {
-            //TODO throw exception
+            return null;
         }
-
-        return 0.0;
     }
 }
